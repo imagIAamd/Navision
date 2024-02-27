@@ -1,0 +1,130 @@
+OBJECT Codeunit 50052 Menu_Estadistiques_imagIA_AMD
+{
+  OBJECT-PROPERTIES
+  {
+    Date=27/02/24;
+    Time=19:09:10;
+    Modified=Yes;
+    Version List=;
+  }
+  PROPERTIES
+  {
+    OnRun=BEGIN
+
+              CR := 13; // Carriage Return - (Hex $0D)
+              LF := 10; // Line Feed - (Hex $0A)
+              opt := '';
+              tel := '';
+              name := '';
+              mail := '';
+
+              WHILE opt <> 'exit' DO BEGIN
+                opt := Window.InputBox('1. Peticions per usuaris'+FORMAT(CR)+FORMAT(LF)+
+                                       '2. Peticions per dia'+FORMAT(CR)+FORMAT(LF)+
+                                       '3. Peticions per dia i hora', 'imagIA - Usuaris', 'Estadistica de peticions', 100, 100);
+
+                CASE opt OF
+                  '1':
+                    BEGIN
+                      tel := '';
+                      idUsuari := 0;
+                      num := 0;
+                      tel := Window.InputBox('Introdueix el telŠfon de l`usuari', 'imagIA - 1. Estadistica de peticions per Usuari', 'TelŠfon de l`usuari', 100, 100);
+                      //Mirem la taula de idUsuari per obtindre lïid de lïusuari amb aquell telefon
+                      WITH RegistreIdUsuaris DO BEGIN
+                        SETFILTER(phone_number, tel);
+                        IF FINDFIRST THEN BEGIN
+                          idUsuari := user_id;
+                        END;
+                      END;
+                      //Mirem ara en la taula de peticions per el resta de la informacio
+                      WITH RegistrePeticions DO BEGIN
+                        SETFILTER(user_id, FORMAT(idUsuari));
+                        IF FINDFIRST THEN BEGIN
+                          REPEAT
+                            num := num + 1;
+                          UNTIL NEXT = 0;
+                        END;
+                      END;
+                      Window.MsgBox('TelŠfon de lïusuari: '+tel+FORMAT(CR)+FORMAT(LF)+
+                                    'Num. de peticions: '+ FORMAT(num), 0, 'imagIA - 1. Estadistica de peticions per Usuari');
+                    END;
+                  //Mirar peticions s'un dia
+                  '2':
+                    BEGIN
+                      dia_peticio := '';
+                      dia_peticio := Window.InputBox('Introdueix el dia', 'imagIA - 2.Consulta peticions dïun dia', 'dd/mm/aaaa', 100, 100);
+                      num := 0;
+                      //Mirem ara en la taula de peticions per el resta de la informacio
+                      WITH RegistrePeticions DO BEGIN
+                        SETFILTER(request_date, dia_peticio);
+                        IF FINDFIRST THEN BEGIN
+                          REPEAT
+                            num := num + 1;
+                          UNTIL NEXT = 0;
+                        END;
+                      END;
+                      Window.MsgBox('Data: '+dia_peticio+FORMAT(CR)+FORMAT(LF)+
+                                    'Num. de peticions: '+ FORMAT(num), 0, 'imagIA - 2.Consulta peticions dïun dia');
+                    END;
+                  '3':
+                    BEGIN
+                      tel := '';
+                      idUsuari := 0;
+                      num := 0;
+                      tel := Window.InputBox('Introdueix el telŠfon de l`usuari', 'imagIA - 3. Estadistica de peticions per Usuari i Dia', 'TelŠfon de l`usuari', 100, 100);
+                      dia_peticio := '';
+                      dia_peticio := Window.InputBox('Introdueix el dia', 'imagIA - 3. Estadistica de peticions per Usuari i Dia', 'dd/mm/aaaa', 100, 100);
+                      //Mirem la taula de idUsuari per obtindre lïid de lïusuari amb aquell telefon
+                      WITH RegistreIdUsuaris DO BEGIN
+                        SETFILTER(phone_number, tel);
+                        IF FINDFIRST THEN BEGIN
+                          idUsuari := user_id;
+                        END;
+                      END;
+                      //Mirem ara en la taula de peticions per el resta de la informacio
+                      WITH RegistrePeticions DO BEGIN
+                        SETFILTER(user_id, FORMAT(idUsuari));
+                        SETFILTER(request_date, dia_peticio);
+                        IF FINDFIRST THEN BEGIN
+                          REPEAT
+                            num := num + 1;
+                          UNTIL NEXT = 0;
+                        END;
+                      END;
+                      Window.MsgBox('TelŠfon de lïusuari: '+tel+FORMAT(CR)+FORMAT(LF)+
+                                    'Data: '+dia_peticio+FORMAT(CR)+FORMAT(LF)+
+                                    'Num. de peticions: '+ FORMAT(num), 0, 'imagIA - 3. Estadistica de peticions per Usuari i Dia');
+                    END;
+
+
+              END;
+
+             END;
+          END;
+
+  }
+  CODE
+  {
+    VAR
+      DialogUsu@1106000000 : Dialog;
+      opt@1106000001 : Text;
+      aux@1106000002 : Text;
+      Window@1106000003 : DotNet "'Microsoft.VisualBasic, Version=10.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a'.Microsoft.VisualBasic.Interaction" RUNONCLIENT;
+      RegistreUsuaris@1106000004 : Record 50050;
+      name@1106000005 : Text;
+      tel@1106000006 : Text;
+      mail@1106000007 : Text;
+      CR@1106000008 : Char;
+      LF@1106000009 : Char;
+      num@1106000010 : Integer;
+      idUsuari@1106000011 : Integer;
+      dia_peticio@1106000012 : Text;
+      RegistreIdUsuaris@1106000013 : Record 50042;
+      RegistrePeticions@1106000014 : Record 50044;
+
+    BEGIN
+    END.
+  }
+}
+

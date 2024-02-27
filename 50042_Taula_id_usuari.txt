@@ -1,0 +1,35 @@
+OBJECT Table 50042 Taula_id_usuari
+{
+  OBJECT-PROPERTIES
+  {
+    Date=27/02/24;
+    Time=18:36:47;
+    Modified=Yes;
+    Version List=;
+  }
+  PROPERTIES
+  {
+  }
+  FIELDS
+  {
+    { 1   ;   ;user_id             ;Integer        }
+    { 2   ;   ;access_key          ;Integer        }
+    { 3   ;   ;email               ;Text30         }
+    { 4   ;   ;nickname            ;Text200        }
+    { 5   ;   ;phone_number        ;Text200        }
+  }
+  KEYS
+  {
+    {    ;user_id                                 ;Clustered=Yes }
+  }
+  FIELDGROUPS
+  {
+  }
+  CODE
+  {
+
+    BEGIN
+    END.
+  }
+}
+
