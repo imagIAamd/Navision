@@ -1,0 +1,100 @@
+OBJECT Codeunit 50051 Menu_Consulta_imagIA_AMD
+{
+  OBJECT-PROPERTIES
+  {
+    Date=26/02/24;
+    Time=16:46:18;
+    Modified=Yes;
+    Version List=;
+  }
+  PROPERTIES
+  {
+    OnRun=BEGIN
+
+              CR := 13; // Carriage Return - (Hex $0D)
+              LF := 10; // Line Feed - (Hex $0A)
+              opt := '';
+              tel := '';
+              name := '';
+              mail := '';
+
+              WHILE opt <> 'exit' DO BEGIN
+                opt := Window.InputBox('1. Consulta peticions dïun usuari'+FORMAT(CR)+FORMAT(LF)+
+                                       '2. Consulta peticions dïun dia', 'imagIA - Consulta peticions', 'Introdueix una opci¢', 100, 100);
+
+                CASE opt OF
+                  //Consultar peticions dïun usuari
+                  '1':
+                    BEGIN
+                      tel := '';
+                      idUsuari := 0;
+                      tel := Window.InputBox('Introdueix el telŠfon de l`usuari', 'imagIA - 1.Consulta peticions dïun usuari', 'TelŠfon de l`usuari', 100, 100);
+                      //Mirem la taula de idUsuari per obtindre lïid de lïusuari amb aquell telefon
+                      WITH RegistreIdUsuaris DO BEGIN
+                        SETFILTER(phone_number, tel);
+                        IF FINDFIRST THEN BEGIN
+                          idUsuari := user_id;
+                        END;
+                      END;
+                      //Mirem ara en la taula de peticions per el rest de la informacio
+                      WITH RegistrePeticions DO BEGIN
+                        SETFILTER(user_id, FORMAT(idUsuari));
+                        IF FINDFIRST THEN BEGIN
+                          REPEAT
+                            Window.MsgBox('TelŠfon de lïusuari: '+tel+FORMAT(CR)+FORMAT(LF)+
+                                          'Model: '+ FORMAT(request_id)+FORMAT(CR)+FORMAT(LF)+
+                                          'Status: ' + 'Done'+FORMAT(CR)+FORMAT(LF)+
+                                          'Data Petici¢: '+request_date, 0, 'imagIA - Consulta Usuari');
+                          UNTIL NEXT = 0;
+                        END;
+                      END;
+                    END;
+                  //Mirar peticions s'un dia
+                  '2':
+                    BEGIN
+                      dia_peticio := '';
+                      dia_peticio := Window.InputBox('Introdueix el dia', 'imagIA - 2.Consulta peticions dïun dia', 'dd/mm/aaaa', 100, 100);
+                      WITH RegistrePeticions DO BEGIN
+                        SETFILTER(request_date, dia_peticio);
+                        IF FINDFIRST THEN BEGIN
+                          REPEAT
+                            RegistreIdUsuaris.GET(user_id);
+                            Window.MsgBox('Data petici¢: '+dia_peticio+FORMAT(CR)+FORMAT(LF)+
+                                          'TelŠfon de lïusuari: '+RegistreIdUsuaris.phone_number+FORMAT(CR)+FORMAT(LF)+
+                                          'Model: '+FORMAT(model_id)+FORMAT(CR)+FORMAT(LF)+
+                                          'Status: '+'Done', 0, '2.Consulta peticions dïun dia');
+                          UNTIL NEXT = 0;
+                        END;
+                      END;
+                    END;
+
+
+              END;
+
+             END;
+          END;
+
+  }
+  CODE
+  {
+    VAR
+      DialogUsu@1106000000 : Dialog;
+      opt@1106000001 : Text;
+      aux@1106000002 : Text;
+      Window@1106000003 : DotNet "'Microsoft.VisualBasic, Version=10.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a'.Microsoft.VisualBasic.Interaction" RUNONCLIENT;
+      RegistreUsuaris@1106000004 : Record 50050;
+      name@1106000005 : Text;
+      tel@1106000006 : Text;
+      mail@1106000007 : Text;
+      CR@1106000008 : Char;
+      LF@1106000009 : Char;
+      RegistrePeticions@1106000010 : Record 50044;
+      RegistreIdUsuaris@1106000011 : Record 50042;
+      idUsuari@1106000012 : Integer;
+      dia_peticio@1106000013 : Text;
+
+    BEGIN
+    END.
+  }
+}
+
